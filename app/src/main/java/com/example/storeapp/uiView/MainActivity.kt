@@ -1,5 +1,4 @@
 package com.example.storeapp.uiView
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +12,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.storeapp.model.repository.TokenInMemory
 import com.example.storeapp.model.repository.user.UserRepository
-import com.example.storeapp.model.repository.user.UserRepositoryImpl
 import com.example.storeapp.uiView.features.IntroScreen
 import com.example.storeapp.uiView.features.mainScreen.MainScreen
 import com.example.storeapp.uiView.features.singIn.SingInScreen
@@ -24,7 +22,6 @@ import com.example.storeapp.uiView.theme.MainAppTheme
 import com.example.storeapp.util.MyScreens
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
