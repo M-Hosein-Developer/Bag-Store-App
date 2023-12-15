@@ -20,6 +20,8 @@ import com.example.storeapp.uiView.features.singIn.SingInViewModel
 import com.example.storeapp.uiView.features.singUp.SingUpScreen
 import com.example.storeapp.uiView.features.singUp.SingUpViewModel
 import com.example.storeapp.uiView.theme.MainAppTheme
+import com.example.storeapp.util.KEY_CATEGORY_ARG
+import com.example.storeapp.util.KEY_PRODUCT_ARG
 import com.example.storeapp.util.MyScreens
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -59,7 +61,7 @@ fun StoreUi(
         composable(MyScreens.MainScreen.route) {
 
             if (TokenInMemory.token != null) {
-                MainScreen(mainViewModel)
+                MainScreen(mainViewModel , navController)
             } else {
                 IntroScreen(navController)
             }
@@ -67,13 +69,13 @@ fun StoreUi(
         }
 
         composable(
-            route = MyScreens.ProductScreen.route + "/{productId}",
-            arguments = listOf(navArgument("productId") { type = NavType.IntType })) {
-            ProductScreen(it.arguments!!.getInt("productId", -1))
+            route = MyScreens.ProductScreen.route + "/" + "{$KEY_PRODUCT_ARG}",
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })) {
+            ProductScreen(it.arguments!!.getString("productId", "null"))
         }
 
         composable(
-            route = MyScreens.CategoryScreen.route,
+            route = MyScreens.CategoryScreen.route + "/" + "{$KEY_CATEGORY_ARG}",
             arguments = listOf(navArgument("categoryName") { type = NavType.StringType })) {
             CategoryScreen(it.arguments!!.getString("categoryName", "null"))
         }
@@ -94,21 +96,13 @@ fun StoreUi(
             SingInScreen(singInViewModel, navController)
         }
 
-        composable(MyScreens.IntroScreen.route) {
-            IntroScreen(navController)
-        }
-
-        composable(MyScreens.NoInternetScreen.route) {
-            NoInternetScreen()
-        }
-
     }
 
 }
 
 
 @Composable
-fun ProductScreen(int: Int) {
+fun ProductScreen(productId: String) {
 
 
 }
@@ -132,11 +126,6 @@ fun CartScreen() {
 }
 
 
-@Composable
-fun NoInternetScreen() {
-
-
-}
 
 
 @Preview(showBackground = true)

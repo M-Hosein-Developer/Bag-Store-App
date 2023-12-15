@@ -22,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,40 +34,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.storeapp.R
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import com.example.storeapp.model.data.Ads
+import com.example.storeapp.model.data.Product
 import com.example.storeapp.uiView.theme.BackgroundMain
+import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.CardViewBackground
 import com.example.storeapp.uiView.theme.MainAppTheme
+import com.example.storeapp.util.CATEGORY
+import com.example.storeapp.util.MyScreens
+import com.example.storeapp.util.TAGS
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-@Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
-    MainAppTheme {
-
-        MainAppTheme {
-
-            Surface(modifier = Modifier.fillMaxSize(), color = BackgroundMain) {
-//                MainScreen()
-            }
-
-        }
-
-    }
-}
-
-@Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
 
     //Status Bar Color
     val uiController = rememberSystemUiController()
     SideEffect { uiController.setStatusBarColor(Color.White) }
+
+    //data from view model
+    val productDataState = viewModel.productData
+    val adsDataState = viewModel.adsData
 
     Column(
         modifier = Modifier
@@ -75,17 +72,20 @@ fun MainScreen(viewModel: MainViewModel) {
             .padding(bottom = 16.dp)
     ) {
 
-        TopToolbar()
+        if (viewModel.showProgressBar.value)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = Blue)
 
-        CategoryBar()
+        TopToolbar(
+            onCartClicked = {navController.navigate(MyScreens.CartScreen.route)} ,
+            onProfileClicked = {navController.navigate(MyScreens.ProfileScreen.route)}
+        )
+        CategoryBar(CATEGORY){
+            navController.navigate(MyScreens.CategoryScreen.route + "/" + it)
+        }
+        ProductSubjectList(TAGS, productDataState.value, adsDataState.value){
+            navController.navigate(MyScreens.ProductScreen.route + "/" + it)
+        }
 
-        ProductSubject()
-        ProductSubject()
-
-        BigPictureAds()
-
-        ProductSubject()
-        ProductSubject()
     }
 
 }
@@ -93,18 +93,18 @@ fun MainScreen(viewModel: MainViewModel) {
 //--Toolbar-----------------------------------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopToolbar() {
+fun TopToolbar(onCartClicked : () -> Unit , onProfileClicked : () -> Unit) {
 
     TopAppBar(
         title = { Text(text = "Bag Store", fontWeight = FontWeight.Bold) },
         modifier = Modifier.background(Color.White),
         actions = {
 
-            IconButton(onClick = { }) {
+            IconButton(onClick = { onCartClicked.invoke() }) {
                 Icon(Icons.Default.ShoppingCart, null)
             }
 
-            IconButton(onClick = { }) {
+            IconButton(onClick = { onProfileClicked.invoke() }) {
                 Icon(Icons.Default.Person, null)
             }
 
@@ -116,15 +116,15 @@ fun TopToolbar() {
 
 //--CategoryBar-------------------------------------------------------------------------------------
 @Composable
-fun CategoryBar() {
+fun CategoryBar(categoryList: List<Pair<String, Int>> , onCategoryClicked : (String) -> Unit) {
 
     LazyRow(
         modifier = Modifier.padding(top = 16.dp),
         contentPadding = PaddingValues(end = 16.dp)
     ) {
 
-        items(10) {
-            CategoryItem()
+        items(categoryList.size) {
+            CategoryItem(categoryList[it] , onCategoryClicked)
         }
 
     }
@@ -132,12 +132,12 @@ fun CategoryBar() {
 }
 
 @Composable
-fun CategoryItem() {
+fun CategoryItem(subject: Pair<String, Int> , onCategoryClicked : (String) -> Unit) {
 
     Column(
         modifier = Modifier
             .padding(start = 16.dp)
-            .clickable { },
+            .clickable { onCategoryClicked.invoke(subject.first) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -145,14 +145,14 @@ fun CategoryItem() {
 
             Image(
                 modifier = Modifier.padding(16.dp),
-                painter = painterResource(id = R.drawable.ic_icon_app),
+                painter = painterResource(id = subject.second),
                 contentDescription = null
             )
 
         }
 
         Text(
-            text = "Hotel",
+            text = subject.first,
             modifier = Modifier.padding(top = 4.dp),
             style = TextStyle(color = Color.Gray)
         )
@@ -164,33 +164,56 @@ fun CategoryItem() {
 
 //--ProductSubject----------------------------------------------------------------------------------
 @Composable
-fun ProductSubject() {
+fun ProductSubjectList(tags: List<String>, product: List<Product>, ads: List<Ads> , onProductClicked : (String) -> Unit) {
+
+    val context  = LocalContext.current
+
+    if (product.isNotEmpty()){
+
+        Column {
+
+            tags.forEachIndexed { it, _ ->
+
+                val withTagData = product.filter { product -> product.tags == tags[it] }
+                ProductSubject(tags[it], withTagData.shuffled() , onProductClicked)
+
+                if (ads.size >= 2)
+                    if (it == 1 || it == 2)
+                        BigPictureAds(ads[it-1] , onProductClicked)
+
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductSubject(subject: String, data: List<Product> , onProductClicked : (String) -> Unit) {
 
     Column(modifier = Modifier.padding(top = 32.dp)) {
 
         Text(
-            text = "Popular Destination",
+            text = subject,
             modifier = Modifier.padding(start = 16.dp),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
-        ProductBar()
+        ProductBar(data , onProductClicked)
 
     }
 
 }
 
 @Composable
-fun ProductBar() {
+fun ProductBar(data: List<Product> , onProductClicked : (String) -> Unit) {
 
     LazyRow(
         modifier = Modifier.padding(top = 16.dp),
         contentPadding = PaddingValues(end = 16.dp),
     ) {
 
-        items(10) {
-            ProductItem()
+        items(data.size) {
+            ProductItem(data[it] , onProductClicked)
         }
 
     }
@@ -198,12 +221,12 @@ fun ProductBar() {
 }
 
 @Composable
-fun ProductItem() {
+fun ProductItem(data: Product , onProductClicked : (String) -> Unit) {
 
     Card(
         modifier = Modifier
             .padding(start = 16.dp)
-            .clickable { },
+            .clickable { onProductClicked.invoke(data.productId) },
         elevation = CardDefaults.cardElevation(4.dp),
         shape = CardDefaults.shape,
         colors = CardDefaults.cardColors(Color.White)
@@ -211,31 +234,31 @@ fun ProductItem() {
 
         Column {
 
-            Image(
+            AsyncImage(
                 contentDescription = null,
                 modifier = Modifier.size(200.dp),
                 contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.img_intro)
+                model = data.imgUrl
             )
 
             Column(Modifier.padding(10.dp)) {
 
                 Text(
-                    text = "Diamond Woman Watch",
+                    text = data.name,
                     style = TextStyle(fontSize = 15.sp),
                     fontWeight = FontWeight.Medium
                 )
 
                 Text(
                     modifier = Modifier.padding(top = 4.dp),
-                    text = "80,000 Tomans",
+                    text = data.price + " Tomans",
                     style = TextStyle(fontSize = 14.sp),
                 )
 
                 Text(
                     modifier = Modifier.padding(top = 4.dp),
-                    text = "150 sold",
-                    style = TextStyle(fontSize = 13.sp , color = Color.Gray),
+                    text = data.soldItem + " Sold",
+                    style = TextStyle(fontSize = 13.sp, color = Color.Gray),
                     fontWeight = FontWeight.Medium
                 )
 
@@ -250,18 +273,18 @@ fun ProductItem() {
 
 //--BigPictureAds-----------------------------------------------------------------------------------
 @Composable
-fun BigPictureAds() {
+fun BigPictureAds(ads: Ads , onProductClicked : (String) -> Unit) {
 
-    Image(
+    AsyncImage(
         modifier = Modifier
             .fillMaxWidth()
             .height(260.dp)
             .padding(top = 32.dp, start = 16.dp, end = 16.dp)
             .clip(CardDefaults.shape)
-            .clickable { },
-        painter = painterResource(id = R.drawable.img_intro),
+            .clickable { onProductClicked.invoke(ads.productId) },
         contentDescription = null,
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
+        model = ads.imageURL
     )
 
 }

@@ -1,6 +1,7 @@
 package com.example.storeapp.di.modules
 
 import com.example.storeapp.model.repository.product.ProductRepository
+import com.example.storeapp.model.repository.product.ProductRepositoryImpl
 import com.example.storeapp.model.repository.user.UserRepository
 import com.example.storeapp.model.repository.user.UserRepositoryImpl
 import dagger.Binds
@@ -16,5 +17,5 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(repository: UserRepositoryImpl): UserRepository
 
     @Binds
-    abstract fun bindProductRepository(repository: UserRepositoryImpl) : ProductRepository
+    abstract fun bindProductRepository(repository: ProductRepositoryImpl) : ProductRepository
 }

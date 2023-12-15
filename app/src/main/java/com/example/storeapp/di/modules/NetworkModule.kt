@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.storeapp.model.apiService.ApiService
 import com.example.storeapp.model.repository.TokenInMemory
 import com.example.storeapp.util.BASE_URL
+import com.example.storeapp.util.NetworkChecker
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,6 +53,12 @@ object NetworkModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit) : ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkChecker(@ApplicationContext context: Context): Boolean {
+        return NetworkChecker(context).internetConnection
     }
 
 }

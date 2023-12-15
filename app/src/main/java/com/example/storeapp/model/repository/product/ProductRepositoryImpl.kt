@@ -13,8 +13,7 @@ class ProductRepositoryImpl @Inject constructor(
 
 
     override suspend fun getAllProduces(isInternetConnected: Boolean): List<Product> {
-
-        return if (isInternetConnected) {
+        if (isInternetConnected) {
 
             //get data from api
             val dataFromServer = apiService.getAllProducts()
@@ -22,14 +21,12 @@ class ProductRepositoryImpl @Inject constructor(
             if (dataFromServer.success)
                 productDao.insertOrUpdate(dataFromServer.products)
 
-            dataFromServer.products
+            return dataFromServer.products
 
         } else {
             //get data from db
-            productDao.getAll()
+            return productDao.getAll()
         }
-
-        return listOf()
     }
 
     override suspend fun getAllAds(isInternetConnected: Boolean): List<Ads> {

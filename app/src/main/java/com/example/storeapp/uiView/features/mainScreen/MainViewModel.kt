@@ -8,6 +8,7 @@ import com.example.storeapp.model.data.Product
 import com.example.storeapp.model.repository.product.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,6 +30,7 @@ class MainViewModel @Inject constructor(private val repository: ProductRepositor
             if (isInternetConnected)
                 showProgressBar.value = true
 
+            delay(1200)
             val newDataProducts = async { repository.getAllProduces(isInternetConnected) }
             val newDataAds = async { repository.getAllAds(isInternetConnected) }
 
