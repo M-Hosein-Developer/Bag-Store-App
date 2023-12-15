@@ -53,7 +53,7 @@ fun MainScreenPreview() {
         MainAppTheme {
 
             Surface(modifier = Modifier.fillMaxSize(), color = BackgroundMain) {
-                MainScreen()
+//                MainScreen()
             }
 
         }
@@ -62,7 +62,7 @@ fun MainScreenPreview() {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel) {
 
     //Status Bar Color
     val uiController = rememberSystemUiController()

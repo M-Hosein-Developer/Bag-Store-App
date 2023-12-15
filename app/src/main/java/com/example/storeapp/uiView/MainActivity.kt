@@ -14,6 +14,7 @@ import com.example.storeapp.model.repository.TokenInMemory
 import com.example.storeapp.model.repository.user.UserRepository
 import com.example.storeapp.uiView.features.IntroScreen
 import com.example.storeapp.uiView.features.mainScreen.MainScreen
+import com.example.storeapp.uiView.features.mainScreen.MainViewModel
 import com.example.storeapp.uiView.features.singIn.SingInScreen
 import com.example.storeapp.uiView.features.singIn.SingInViewModel
 import com.example.storeapp.uiView.features.singUp.SingUpScreen
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
 
     private val singUpViewModel: SingUpViewModel by viewModels()
     private val singInViewModel: SingInViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -38,14 +40,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainAppTheme {
                 userRepository.loadToken()
-                StoreUi(singUpViewModel, singInViewModel)
+                StoreUi(singUpViewModel, singInViewModel , mainViewModel)
             }
         }
     }
 }
 
 @Composable
-fun StoreUi(singUpViewModel: SingUpViewModel, singInViewModel: SingInViewModel) {
+fun StoreUi(
+    singUpViewModel: SingUpViewModel,
+    singInViewModel: SingInViewModel,
+    mainViewModel: MainViewModel
+) {
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = MyScreens.MainScreen.route) {
@@ -53,7 +59,7 @@ fun StoreUi(singUpViewModel: SingUpViewModel, singInViewModel: SingInViewModel) 
         composable(MyScreens.MainScreen.route) {
 
             if (TokenInMemory.token != null) {
-                MainScreen()
+                MainScreen(mainViewModel)
             } else {
                 IntroScreen(navController)
             }
@@ -133,15 +139,10 @@ fun NoInternetScreen() {
 }
 
 
-@Composable
-fun Test() {
-
-}
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MainAppTheme {
-        Test()
+
     }
 }
