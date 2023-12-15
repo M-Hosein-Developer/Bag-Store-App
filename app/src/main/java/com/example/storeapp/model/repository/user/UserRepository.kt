@@ -1,10 +1,5 @@
 package com.example.storeapp.model.repository.user
 
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-
 interface UserRepository {
 
     //Online
