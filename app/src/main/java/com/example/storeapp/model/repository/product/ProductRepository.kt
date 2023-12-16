@@ -9,4 +9,6 @@ interface ProductRepository {
 
     suspend fun getAllAds(isInternetConnected : Boolean) : List<Ads>
 
+    suspend fun getAllProducesByCategory(category : String) : List<Product>
+
 }

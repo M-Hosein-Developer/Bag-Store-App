@@ -13,6 +13,8 @@ import androidx.navigation.navArgument
 import com.example.storeapp.model.repository.TokenInMemory
 import com.example.storeapp.model.repository.user.UserRepository
 import com.example.storeapp.uiView.features.IntroScreen
+import com.example.storeapp.uiView.features.category.CategoryScreen
+import com.example.storeapp.uiView.features.category.CategoryViewModel
 import com.example.storeapp.uiView.features.mainScreen.MainScreen
 import com.example.storeapp.uiView.features.mainScreen.MainViewModel
 import com.example.storeapp.uiView.features.singIn.SingInScreen
@@ -32,6 +34,8 @@ class MainActivity : ComponentActivity() {
     private val singUpViewModel: SingUpViewModel by viewModels()
     private val singInViewModel: SingInViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
+    private val categoryViewModel : CategoryViewModel by viewModels()
+
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -42,7 +46,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainAppTheme {
                 userRepository.loadToken()
-                StoreUi(singUpViewModel, singInViewModel , mainViewModel)
+                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel)
             }
         }
     }
@@ -52,7 +56,8 @@ class MainActivity : ComponentActivity() {
 fun StoreUi(
     singUpViewModel: SingUpViewModel,
     singInViewModel: SingInViewModel,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    categoryViewModel: CategoryViewModel
 ) {
 
     val navController = rememberNavController()
@@ -77,7 +82,8 @@ fun StoreUi(
         composable(
             route = MyScreens.CategoryScreen.route + "/" + "{$KEY_CATEGORY_ARG}",
             arguments = listOf(navArgument("categoryName") { type = NavType.StringType })) {
-            CategoryScreen(it.arguments!!.getString("categoryName", "null"))
+
+            CategoryScreen(categoryViewModel , navController , it.arguments!!.getString("categoryName", "null"))
         }
 
         composable(MyScreens.ProfileScreen.route) {
@@ -107,11 +113,6 @@ fun ProductScreen(productId: String) {
 
 }
 
-@Composable
-fun CategoryScreen(string: String) {
-
-
-}
 
 @Composable
 fun ProfileScreen() {

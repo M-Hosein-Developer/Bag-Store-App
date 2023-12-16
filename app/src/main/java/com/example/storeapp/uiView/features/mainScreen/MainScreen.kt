@@ -34,21 +34,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.storeapp.model.data.Ads
 import com.example.storeapp.model.data.Product
-import com.example.storeapp.uiView.theme.BackgroundMain
 import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.CardViewBackground
-import com.example.storeapp.uiView.theme.MainAppTheme
 import com.example.storeapp.util.CATEGORY
 import com.example.storeapp.util.MyScreens
 import com.example.storeapp.util.TAGS
@@ -165,8 +161,6 @@ fun CategoryItem(subject: Pair<String, Int> , onCategoryClicked : (String) -> Un
 //--ProductSubject----------------------------------------------------------------------------------
 @Composable
 fun ProductSubjectList(tags: List<String>, product: List<Product>, ads: List<Ads> , onProductClicked : (String) -> Unit) {
-
-    val context  = LocalContext.current
 
     if (product.isNotEmpty()){
 
