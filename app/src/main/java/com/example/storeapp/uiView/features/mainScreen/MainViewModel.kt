@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.storeapp.model.data.Ads
 import com.example.storeapp.model.data.Product
 import com.example.storeapp.model.repository.product.ProductRepository
+import com.example.storeapp.util.coroutineExceptionHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -25,7 +26,7 @@ class MainViewModel @Inject constructor(private val repository: ProductRepositor
 
     private fun refreshAllDataFromNet(isInternetConnected : Boolean){
 
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler){
 
             if (isInternetConnected)
                 showProgressBar.value = true

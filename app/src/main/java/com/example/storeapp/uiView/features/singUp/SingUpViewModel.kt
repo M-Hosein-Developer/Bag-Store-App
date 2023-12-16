@@ -1,11 +1,10 @@
 package com.example.storeapp.uiView.features.singUp
 
-
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storeapp.model.repository.user.UserRepository
-import com.example.storeapp.model.repository.user.UserRepositoryImpl
+import com.example.storeapp.util.coroutineExceptionHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +19,7 @@ class SingUpViewModel @Inject constructor(private val userRepository: UserReposi
 
     fun singUpUser(loggingEvent : (String) -> Unit){
 
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
 
             val result = userRepository.signUp(name.value!!, email.value!!, password.value!!)
             loggingEvent(result)

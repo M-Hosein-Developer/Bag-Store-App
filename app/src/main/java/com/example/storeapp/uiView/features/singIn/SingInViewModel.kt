@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storeapp.model.repository.user.UserRepository
-import com.example.storeapp.model.repository.user.UserRepositoryImpl
+import com.example.storeapp.util.coroutineExceptionHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +19,7 @@ class SingInViewModel @Inject constructor(private val userRepository: UserReposi
 
     fun singInUser(loggingEvent : (String) -> Unit){
 
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
 
             val result = userRepository.signIn(email.value!!, password.value!!)
             loggingEvent(result)

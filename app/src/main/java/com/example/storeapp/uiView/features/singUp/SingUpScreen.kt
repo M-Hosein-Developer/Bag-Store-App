@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,6 +58,8 @@ fun SingUpScreen(viewModel: SingUpViewModel, navController: NavHostController) {
 
     val context = LocalContext.current
 
+    clearInputs(viewModel)
+
     Box {
 
         Box(
@@ -68,7 +72,8 @@ fun SingUpScreen(viewModel: SingUpViewModel, navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.95f),
+                .fillMaxHeight(0.95f)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -80,7 +85,7 @@ fun SingUpScreen(viewModel: SingUpViewModel, navController: NavHostController) {
 
                     if (it == VALUE_SUCCESS) {
                         navController.navigate(MyScreens.MainScreen.route){
-                            popUpTo(MyScreens.IntroScreen.route){
+                            popUpTo(MyScreens.MainScreen.route){
                                 inclusive = true
                             }
                         }
@@ -262,6 +267,7 @@ fun MainCardView(navigation: NavController, viewModel: SingUpViewModel, singUpEv
 fun MainTextField(edtValue: String, icon: Int, hint: String, onValueChanges: (String) -> Unit) {
 
     OutlinedTextField(
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         label = { Text(hint) },
         value = edtValue,
         singleLine = true,
@@ -311,5 +317,10 @@ fun PasswordTextField(edtValue: String, icon: Int, hint: String, onValueChanges:
 
 }
 
-
+fun clearInputs(viewModel: SingUpViewModel){
+    viewModel.email.value = ""
+    viewModel.password.value = ""
+    viewModel.confirmPassword.value = ""
+    viewModel.name.value = ""
+}
 

@@ -56,6 +56,8 @@ fun SingInScreen(viewModel: SingInViewModel, navController: NavHostController) {
 
     val context = LocalContext.current
 
+    clearInputs(viewModel)
+
     Box {
 
         Box(
@@ -80,7 +82,7 @@ fun SingInScreen(viewModel: SingInViewModel, navController: NavHostController) {
 
                     if (it == VALUE_SUCCESS){
                         navController.navigate(MyScreens.MainScreen.route){
-                            popUpTo(MyScreens.IntroScreen.route){
+                            popUpTo(MyScreens.MainScreen.route){
                                 inclusive = true
                             }
                         }
@@ -215,6 +217,7 @@ fun MainCardView(navigation: NavController, viewModel: SingInViewModel, singInEv
 fun MainTextField(edtValue: String, icon: Int, hint: String, onValueChanges: (String) -> Unit) {
 
     OutlinedTextField(
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         label = { Text(hint) },
         value = edtValue,
         singleLine = true,
@@ -261,5 +264,10 @@ fun PasswordTextField(edtValue: String, icon: Int, hint: String, onValueChanges:
 
 }
 
+fun clearInputs(viewModel: SingInViewModel){
+    viewModel.email.value = ""
+    viewModel.password.value = ""
+
+}
 
 
