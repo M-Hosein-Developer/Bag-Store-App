@@ -17,6 +17,8 @@ import com.example.storeapp.uiView.features.category.CategoryScreen
 import com.example.storeapp.uiView.features.category.CategoryViewModel
 import com.example.storeapp.uiView.features.mainScreen.MainScreen
 import com.example.storeapp.uiView.features.mainScreen.MainViewModel
+import com.example.storeapp.uiView.features.product.ProductScreen
+import com.example.storeapp.uiView.features.product.ProductViewModel
 import com.example.storeapp.uiView.features.singIn.SingInScreen
 import com.example.storeapp.uiView.features.singIn.SingInViewModel
 import com.example.storeapp.uiView.features.singUp.SingUpScreen
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
     private val singInViewModel: SingInViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
     private val categoryViewModel : CategoryViewModel by viewModels()
+    private val productViewModel : ProductViewModel by viewModels()
 
 
     @Inject
@@ -46,7 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainAppTheme {
                 userRepository.loadToken()
-                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel)
+                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel , productViewModel)
             }
         }
     }
@@ -57,7 +60,8 @@ fun StoreUi(
     singUpViewModel: SingUpViewModel,
     singInViewModel: SingInViewModel,
     mainViewModel: MainViewModel,
-    categoryViewModel: CategoryViewModel
+    categoryViewModel: CategoryViewModel,
+    productViewModel: ProductViewModel
 ) {
 
     val navController = rememberNavController()
@@ -76,7 +80,7 @@ fun StoreUi(
         composable(
             route = MyScreens.ProductScreen.route + "/" + "{$KEY_PRODUCT_ARG}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })) {
-            ProductScreen(it.arguments!!.getString("productId", "null"))
+            ProductScreen(it.arguments!!.getString("productId", "null") , productViewModel , navController)
         }
 
         composable(
@@ -107,11 +111,7 @@ fun StoreUi(
 }
 
 
-@Composable
-fun ProductScreen(productId: String) {
 
-
-}
 
 
 @Composable
