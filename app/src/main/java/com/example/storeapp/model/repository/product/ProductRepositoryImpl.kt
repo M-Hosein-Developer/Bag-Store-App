@@ -45,4 +45,10 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getAllProducesByCategory(category: String): List<Product> {
         return productDao.getAllByCategory(category)
     }
+
+    override suspend fun getProductById(productId: String): Product {
+
+        return productDao.getProductById(productId)
+
+    }
 }
