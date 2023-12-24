@@ -1,5 +1,7 @@
 package com.example.storeapp.di.modules
 
+import com.example.storeapp.model.repository.commen.CommentRepository
+import com.example.storeapp.model.repository.commen.CommentRepositoryImpl
 import com.example.storeapp.model.repository.product.ProductRepository
 import com.example.storeapp.model.repository.product.ProductRepositoryImpl
 import com.example.storeapp.model.repository.user.UserRepository
@@ -18,4 +20,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProductRepository(repository: ProductRepositoryImpl) : ProductRepository
+
+    @Binds
+    abstract fun bindCommentsRepository(repository: CommentRepositoryImpl) : CommentRepository
 }

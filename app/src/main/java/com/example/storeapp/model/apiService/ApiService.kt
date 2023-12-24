@@ -1,6 +1,8 @@
 package com.example.storeapp.model.apiService
 
+import com.example.storeapp.model.data.AddNewCommentResponse
 import com.example.storeapp.model.data.AdsResponse
+import com.example.storeapp.model.data.CommentResponse
 import com.example.storeapp.model.data.LoginResponse
 import com.example.storeapp.model.data.ProductResponse
 import com.google.gson.JsonObject
@@ -28,6 +30,14 @@ interface ApiService {
 
     @GET("getSliderPics")
     suspend fun getAllAds(): AdsResponse
+
+
+    //--Comment-------------------------------------------------------------------------------------
+    @POST("getComments")
+    suspend fun getAllComments(@Body jsonObject: JsonObject) : CommentResponse
+
+    @POST("addNewComment")
+    suspend fun addNewComment(@Body jsonObject: JsonObject) : AddNewCommentResponse
 
 
 }
