@@ -370,7 +370,7 @@ fun AddNewComment(onDismiss: () -> Unit, onPositiveClicked: (String) -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
 
         Card(
-            modifier = Modifier.fillMaxHeight(0.49f),
+            modifier = Modifier.fillMaxHeight(0.20f),
             elevation = CardDefaults.cardElevation(8.dp),
             shape = CardDefaults.shape
         ) {
@@ -507,8 +507,7 @@ fun AddToCart() {
 @Composable
 fun GreetingPreview() {
     MainAppTheme {
-        ProductComments(listOf(Comment("12" , "aas" , "adad@email")) ){
+        AddNewComment({} , {})
 
         }
     }
-}
