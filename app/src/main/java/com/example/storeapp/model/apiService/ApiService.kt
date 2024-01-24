@@ -2,6 +2,7 @@ package com.example.storeapp.model.apiService
 
 import com.example.storeapp.model.data.AddNewCommentResponse
 import com.example.storeapp.model.data.AdsResponse
+import com.example.storeapp.model.data.CartResponse
 import com.example.storeapp.model.data.CommentResponse
 import com.example.storeapp.model.data.LoginResponse
 import com.example.storeapp.model.data.ProductResponse
@@ -38,6 +39,10 @@ interface ApiService {
 
     @POST("addNewComment")
     suspend fun addNewComment(@Body jsonObject: JsonObject) : AddNewCommentResponse
+
+    //--Add To Cart---------------------------------------------------------------------------------
+    @POST("addToCart")
+    suspend fun addProductToCard(@Body jsonObject: JsonObject) : CartResponse
 
 
 }

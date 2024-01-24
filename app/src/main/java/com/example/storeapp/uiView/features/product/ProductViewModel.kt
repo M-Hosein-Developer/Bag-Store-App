@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storeapp.model.data.Comment
+import com.example.storeapp.model.repository.cart.CartRepository
 import com.example.storeapp.model.repository.commen.CommentRepository
 import com.example.storeapp.model.repository.product.ProductRepository
 import com.example.storeapp.util.EMPTY_PRODUCT
@@ -14,10 +15,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductViewModel @Inject constructor(private val productRepository: ProductRepository , private val commentRepository: CommentRepository) : ViewModel() {
+class ProductViewModel @Inject constructor(
+    private val productRepository: ProductRepository ,
+    private val commentRepository: CommentRepository,
+    private val cardRepository: CartRepository
+) : ViewModel() {
 
     val thisProduct = mutableStateOf(EMPTY_PRODUCT)
     val comments = mutableStateOf(listOf<Comment>())
+    val isAddingProduct = mutableStateOf(false)
 
     private fun loadProductFromCache(productId : String) {
 
@@ -53,6 +59,23 @@ class ProductViewModel @Inject constructor(private val productRepository: Produc
             delay(100)
 
             comments.value = commentRepository.getAllComments(productId)
+        }
+
+    }
+
+    fun addProductToCart(productId: String , addingToCartResult:(String) -> Unit){
+
+        viewModelScope.launch(coroutineExceptionHandler) {
+
+            isAddingProduct.value = true
+            val result = cardRepository.addToCart(productId)
+            delay(500)
+            isAddingProduct.value = false
+
+            if (result) addingToCartResult.invoke("Product Added To Cart")
+            else addingToCartResult.invoke("Product Not Added To Cart")
+
+
         }
 
     }
