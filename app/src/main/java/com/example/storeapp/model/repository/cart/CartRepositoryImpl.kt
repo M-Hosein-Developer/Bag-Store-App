@@ -17,5 +17,25 @@ class CartRepositoryImpl @Inject constructor(private val apiService: ApiService,
 
     }
 
+    override suspend fun getCartSize(): Int {
+
+        val result = apiService.getUserCart()
+
+         if (result.success){
+            var counter = 0
+            result.productList.forEach {
+
+                counter += ( it.quantity ?: "0" ).toInt()
+
+            }
+
+             return counter
+
+        }else{
+             return 0
+        }
+
+    }
+
 
 }

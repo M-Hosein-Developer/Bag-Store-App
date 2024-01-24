@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storeapp.model.data.Ads
 import com.example.storeapp.model.data.Product
+import com.example.storeapp.model.repository.cart.CartRepository
 import com.example.storeapp.model.repository.product.ProductRepository
 import com.example.storeapp.util.coroutineExceptionHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,11 +15,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: ProductRepository , isInternetConnected : Boolean) : ViewModel(){
+class MainViewModel @Inject constructor(
+    private val repository: ProductRepository,
+    private val cardRepository: CartRepository,
+    isInternetConnected: Boolean,
+) : ViewModel() {
 
     val productData = mutableStateOf<List<Product>>(listOf())
     val adsData = mutableStateOf<List<Ads>>(listOf())
     val showProgressBar = mutableStateOf(false)
+    val badgeNumber = mutableStateOf(0)
 
     init {
         refreshAllDataFromNet(isInternetConnected)
@@ -48,5 +54,11 @@ class MainViewModel @Inject constructor(private val repository: ProductRepositor
         productData.value = newDataProducts
         adsData.value = newDataAds
 
+    }
+
+    fun loadBadgeNumber() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            badgeNumber.value = cardRepository.getCartSize()
+        }
     }
 }

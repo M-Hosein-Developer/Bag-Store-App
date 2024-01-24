@@ -71,6 +71,7 @@ import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.priceBackground
 import com.example.storeapp.util.MyScreens
 import com.example.storeapp.util.NetworkChecker
+import com.example.storeapp.util.stylePrice
 
 
 @Composable
@@ -99,7 +100,7 @@ fun ProductScreen(
 
             ProductToolbar(
                 productName = "Detail",
-                badgeNumber = 7,
+                badgeNumber = viewModel.badgeNumber.value,
                 onBackCLicked = { navController.popBackStack() },
                 onCartClicked = {
                     if (NetworkChecker(context).internetConnection) navController.navigate(MyScreens.CartScreen.route)
@@ -112,7 +113,9 @@ fun ProductScreen(
             )
 
             val data = viewModel.thisProduct.value
-            val comment = viewModel.comments.value
+            val comment = if (NetworkChecker(context).internetConnection) viewModel.comments.value
+            else listOf()
+
             ProductItem(
                 data = data, comment,
                 onCategoryClicked = { navController.navigate(MyScreens.CategoryScreen.route + "/" + it) },
@@ -255,6 +258,8 @@ fun ProductDesign(data: Product, onCategoryClicked: (String) -> Unit) {
 @Composable
 fun ProductDetail(data: Product, commentNumber: String) {
 
+    val context = LocalContext.current
+
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
 
         Column {
@@ -266,8 +271,12 @@ fun ProductDetail(data: Product, commentNumber: String) {
                     contentDescription = null,
                     Modifier.size(26.dp)
                 )
+
+                val comment = if (NetworkChecker(context).internetConnection) commentNumber + " Comments"
+                else "No Internet"
+
                 Text(
-                    text = commentNumber + " Comments",
+                    text = comment,
                     modifier = Modifier.padding(start = 6.dp),
                     fontSize = 13.sp
                 )
@@ -580,7 +589,7 @@ fun AddToCart(price: String, isAddingProduct: Boolean, onCardClicked: () -> Unit
                 color = priceBackground
             ) {
                 Text(
-                    text = price + " Tomans" ,
+                    text = stylePrice(price),
                     style = TextStyle(fontSize = 14.sp , fontWeight = FontWeight.Medium),
                     modifier = Modifier.padding(start = 8.dp , end = 8.dp , bottom = 6.dp , top = 6.dp)
                 )

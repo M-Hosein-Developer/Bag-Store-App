@@ -1,5 +1,6 @@
 package com.example.storeapp.uiView.features.mainScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +51,9 @@ import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.CardViewBackground
 import com.example.storeapp.util.CATEGORY
 import com.example.storeapp.util.MyScreens
+import com.example.storeapp.util.NetworkChecker
 import com.example.storeapp.util.TAGS
+import com.example.storeapp.util.stylePrice
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
@@ -61,6 +67,12 @@ fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
     val productDataState = viewModel.productData
     val adsDataState = viewModel.adsData
 
+    val context = LocalContext.current
+
+    if (NetworkChecker(context).internetConnection){
+        viewModel.loadBadgeNumber()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +84,9 @@ fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = Blue)
 
         TopToolbar(
-            onCartClicked = {navController.navigate(MyScreens.CartScreen.route)} ,
+            badgeNumber = viewModel.badgeNumber.value,
+            onCartClicked = { if (NetworkChecker(context).internetConnection) navController.navigate(MyScreens.CartScreen.route) else
+                Toast.makeText(context, "please connect to Internet", Toast.LENGTH_SHORT).show()} ,
             onProfileClicked = {navController.navigate(MyScreens.ProfileScreen.route)}
         )
         CategoryBar(CATEGORY){
@@ -89,7 +103,7 @@ fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
 //--Toolbar-----------------------------------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopToolbar(onCartClicked : () -> Unit , onProfileClicked : () -> Unit) {
+fun TopToolbar(badgeNumber: Int , onCartClicked : () -> Unit , onProfileClicked : () -> Unit) {
 
     TopAppBar(
         title = { Text(text = "Bag Store", fontWeight = FontWeight.Bold) },
@@ -97,7 +111,16 @@ fun TopToolbar(onCartClicked : () -> Unit , onProfileClicked : () -> Unit) {
         actions = {
 
             IconButton(onClick = { onCartClicked.invoke() }) {
-                Icon(Icons.Default.ShoppingCart, null)
+                if (badgeNumber == 0){
+                    Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                }else{
+                    BadgedBox(badge = { Badge {
+                        Text(badgeNumber.toString())
+                    }
+                    }) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                    }
+                }
             }
 
             IconButton(onClick = { onProfileClicked.invoke() }) {
@@ -245,7 +268,7 @@ fun ProductItem(data: Product , onProductClicked : (String) -> Unit) {
 
                 Text(
                     modifier = Modifier.padding(top = 4.dp),
-                    text = data.price + " Tomans",
+                    text = stylePrice(data.price),
                     style = TextStyle(fontSize = 14.sp),
                 )
 

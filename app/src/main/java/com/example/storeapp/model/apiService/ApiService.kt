@@ -6,6 +6,7 @@ import com.example.storeapp.model.data.CartResponse
 import com.example.storeapp.model.data.CommentResponse
 import com.example.storeapp.model.data.LoginResponse
 import com.example.storeapp.model.data.ProductResponse
+import com.example.storeapp.model.data.UserCartInfo
 import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.http.Body
@@ -44,5 +45,8 @@ interface ApiService {
     @POST("addToCart")
     suspend fun addProductToCard(@Body jsonObject: JsonObject) : CartResponse
 
+    //--User Cart-----------------------------------------------------------------------------------
+    @GET("getUserCart")
+    suspend fun getUserCart() : UserCartInfo
 
 }

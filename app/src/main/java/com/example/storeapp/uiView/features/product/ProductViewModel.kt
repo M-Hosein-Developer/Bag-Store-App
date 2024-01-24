@@ -1,5 +1,6 @@
 package com.example.storeapp.uiView.features.product
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,7 @@ class ProductViewModel @Inject constructor(
     val thisProduct = mutableStateOf(EMPTY_PRODUCT)
     val comments = mutableStateOf(listOf<Comment>())
     val isAddingProduct = mutableStateOf(false)
+    val badgeNumber = mutableStateOf(0)
 
     private fun loadProductFromCache(productId : String) {
 
@@ -37,7 +39,10 @@ class ProductViewModel @Inject constructor(
 
         loadProductFromCache(productId)
 
-        if (isInternetConnected) loadAllComments(productId)
+        if (isInternetConnected){
+            loadAllComments(productId)
+            loadBadgeNumber()
+        }
 
     }
 
@@ -78,6 +83,14 @@ class ProductViewModel @Inject constructor(
 
         }
 
+    }
+
+
+    private fun loadBadgeNumber() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            badgeNumber.value = cardRepository.getCartSize()
+            Log.v("checkhh" , badgeNumber.value.toString())
+        }
     }
 
 }

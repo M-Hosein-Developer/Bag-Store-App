@@ -10,16 +10,17 @@ data class ProductResponse(
 
 @Entity("product_table")
 data class Product(
-    val category: String,
-    val detailText: String,
-    val imgUrl: String,
-    val material: String,
-    val name: String,
-    val price: String,
 
     @PrimaryKey
     val productId: String,
 
+    val name: String,
+    val imgUrl: String,
+    val detailText: String,
+    val price: String,
     val soldItem: String,
-    val tags: String
+    val category: String,
+    val material: String,
+    val tags: String,
+    val quantity: String?
 )
