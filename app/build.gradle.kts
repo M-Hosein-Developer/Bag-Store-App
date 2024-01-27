@@ -103,4 +103,7 @@ dependencies {
     //System Ui Controller
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
+    //Lottie
+    implementation("com.airbnb.android:lottie-compose:6.3.0")
+
 }

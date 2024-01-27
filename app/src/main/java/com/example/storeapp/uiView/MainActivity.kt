@@ -19,6 +19,8 @@ import com.example.storeapp.uiView.features.mainScreen.MainScreen
 import com.example.storeapp.uiView.features.mainScreen.MainViewModel
 import com.example.storeapp.uiView.features.product.ProductScreen
 import com.example.storeapp.uiView.features.product.ProductViewModel
+import com.example.storeapp.uiView.features.profile.ProfileScreen
+import com.example.storeapp.uiView.features.profile.ProfileViewModel
 import com.example.storeapp.uiView.features.singIn.SingInScreen
 import com.example.storeapp.uiView.features.singIn.SingInViewModel
 import com.example.storeapp.uiView.features.singUp.SingUpScreen
@@ -38,7 +40,7 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
     private val categoryViewModel : CategoryViewModel by viewModels()
     private val productViewModel : ProductViewModel by viewModels()
-
+    private val profileViewModel : ProfileViewModel by viewModels()
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -49,7 +51,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainAppTheme {
                 userRepository.loadToken()
-                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel , productViewModel)
+                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel , productViewModel , profileViewModel)
             }
         }
     }
@@ -61,8 +63,11 @@ fun StoreUi(
     singInViewModel: SingInViewModel,
     mainViewModel: MainViewModel,
     categoryViewModel: CategoryViewModel,
-    productViewModel: ProductViewModel
+    productViewModel: ProductViewModel,
+    profileViewModel : ProfileViewModel
 ) {
+
+
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = MyScreens.MainScreen.route) {
@@ -91,7 +96,7 @@ fun StoreUi(
         }
 
         composable(MyScreens.ProfileScreen.route) {
-            ProfileScreen()
+            ProfileScreen(profileViewModel , navController)
         }
 
         composable(MyScreens.CartScreen.route) {
@@ -112,14 +117,6 @@ fun StoreUi(
 
 
 
-
-
-@Composable
-fun ProfileScreen() {
-
-
-}
-
 @Composable
 fun CartScreen() {
 
@@ -133,6 +130,7 @@ fun CartScreen() {
 @Composable
 fun GreetingPreview() {
     MainAppTheme {
+
 
     }
 }

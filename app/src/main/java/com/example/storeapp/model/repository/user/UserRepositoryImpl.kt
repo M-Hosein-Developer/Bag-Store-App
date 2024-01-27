@@ -21,9 +21,10 @@ class UserRepositoryImpl @Inject constructor(private val apiService : ApiService
         val result = apiService.signUp(jsonObject)
         if (result.success){
 
-          TokenInMemory.refreshToken(username , result.token)
-          saveToken(result.token)
-          saveUsername(username)
+            TokenInMemory.refreshToken(username, result.token)
+            saveToken(result.token)
+            saveUsername(username)
+            saveUserLoginTime()
 
             return VALUE_SUCCESS
         }else{
@@ -40,11 +41,12 @@ class UserRepositoryImpl @Inject constructor(private val apiService : ApiService
         }
 
         val result = apiService.signIn(jsonObject)
-        if (result.success){
+        if (result.success) {
 
-            TokenInMemory.refreshToken(username , result.token)
+            TokenInMemory.refreshToken(username, result.token)
             saveToken(result.token)
             saveUsername(username)
+            saveUserLoginTime()
 
             return VALUE_SUCCESS
 
@@ -73,12 +75,34 @@ class UserRepositoryImpl @Inject constructor(private val apiService : ApiService
     }
 
     override fun saveUsername(username: String) {
-        sharedPrf.edit().putString("username" , username).apply()
+        sharedPrf.edit().putString("username", username).apply()
 
     }
 
     override fun getUsername(): String? {
-        return sharedPrf.getString("username" , null)
+        return sharedPrf.getString("username", null)
+    }
+
+    //Profile Screen
+    override fun saveUserLocation(address: String, postalCode: String) {
+        sharedPrf.edit().putString("address", address).apply()
+        sharedPrf.edit().putString("postalCode", postalCode).apply()
+    }
+
+    override fun getUserLocation(): Pair<String, String> {
+        val address = sharedPrf.getString("address", "click to add")!!
+        val postalCode = sharedPrf.getString("postalCode", "click to add")!!
+
+        return Pair(address, postalCode)
+    }
+
+    override fun saveUserLoginTime() {
+        val now = System.currentTimeMillis()
+        sharedPrf.edit().putString("loginTime", now.toString()).apply()
+    }
+
+    override fun getUserLoginTime(): String {
+        return sharedPrf.getString("loginTime", "0")!!
     }
 
 

@@ -83,6 +83,8 @@ fun SingUpScreen(viewModel: SingUpViewModel, navController: NavHostController) {
 
                 viewModel.singUpUser {
 
+
+
                     if (it == VALUE_SUCCESS) {
                         navController.navigate(MyScreens.MainScreen.route){
                             popUpTo(MyScreens.MainScreen.route){
