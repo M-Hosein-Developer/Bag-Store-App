@@ -210,7 +210,7 @@ fun ProductToolbar(
                       if (badgeNumber == 0){
                           Icon(Icons.Default.ShoppingCart, contentDescription = null)
                       }else{
-                          BadgedBox(badge = { Badge {
+                          BadgedBox(modifier = Modifier.padding(end = 20.dp, top = 8.dp) , badge = { Badge {
                               Text(badgeNumber.toString())
                           }
                           }) {

@@ -14,7 +14,9 @@ class ProfileViewModel @Inject constructor(private val userRepository: UserRepos
     val postalCode = mutableStateOf("")
     val loginTime = mutableStateOf("")
 
-    fun loadUserData(){
+    val showLocationDialog = mutableStateOf(false)
+
+    fun loadUserData() {
 
 
         email.value = userRepository.getUsername()!!
@@ -26,4 +28,11 @@ class ProfileViewModel @Inject constructor(private val userRepository: UserRepos
 
     }
 
+    fun signOut() {
+        userRepository.singOut()
+    }
+
+    fun setUserLocation(address: String, postalCode: String){
+        userRepository.saveUserLocation(address , postalCode)
+    }
 }

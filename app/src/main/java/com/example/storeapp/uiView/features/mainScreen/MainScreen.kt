@@ -109,12 +109,11 @@ fun TopToolbar(badgeNumber: Int , onCartClicked : () -> Unit , onProfileClicked 
         title = { Text(text = "Bag Store", fontWeight = FontWeight.Bold) },
         modifier = Modifier.background(Color.White),
         actions = {
-
-            IconButton(onClick = { onCartClicked.invoke() }) {
+            IconButton(onClick = { onCartClicked.invoke() } , Modifier.fillMaxSize(0.16f)) {
                 if (badgeNumber == 0){
                     Icon(Icons.Default.ShoppingCart, contentDescription = null)
                 }else{
-                    BadgedBox(badge = { Badge {
+                    BadgedBox(modifier = Modifier.padding(top = 8.dp), badge = { Badge {
                         Text(badgeNumber.toString())
                     }
                     }) {
@@ -123,11 +122,13 @@ fun TopToolbar(badgeNumber: Int , onCartClicked : () -> Unit , onProfileClicked 
                 }
             }
 
-            IconButton(onClick = { onProfileClicked.invoke() }) {
+            IconButton(onClick = { onProfileClicked.invoke() } ,modifier = Modifier.padding(top = 8.dp)) {
                 Icon(Icons.Default.Person, null)
             }
-
         }
+
+
+
     )
 
 }

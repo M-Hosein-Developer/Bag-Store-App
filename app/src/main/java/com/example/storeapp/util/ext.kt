@@ -2,6 +2,8 @@ package com.example.storeapp.util
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
     Log.v("error" , "Error -> " + throwable.message)
@@ -33,4 +35,14 @@ fun stylePrice(oldPrice : String) : String{
     }
 
     return oldPrice + " Tomans"
+}
+
+fun styleTime(timeInMillies : Long) : String{
+
+    val formater = SimpleDateFormat("yyyy/MM/dd   hh:mm")
+
+    val calender = Calendar.getInstance()
+    calender.timeInMillis = timeInMillies
+
+    return formater.format(calender.time)
 }
