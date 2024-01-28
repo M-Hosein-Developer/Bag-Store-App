@@ -13,6 +13,8 @@ import androidx.navigation.navArgument
 import com.example.storeapp.model.repository.TokenInMemory
 import com.example.storeapp.model.repository.user.UserRepository
 import com.example.storeapp.uiView.features.IntroScreen
+import com.example.storeapp.uiView.features.cart.CartScreen
+import com.example.storeapp.uiView.features.cart.CartViewModel
 import com.example.storeapp.uiView.features.category.CategoryScreen
 import com.example.storeapp.uiView.features.category.CategoryViewModel
 import com.example.storeapp.uiView.features.mainScreen.MainScreen
@@ -41,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private val categoryViewModel : CategoryViewModel by viewModels()
     private val productViewModel : ProductViewModel by viewModels()
     private val profileViewModel : ProfileViewModel by viewModels()
+    private val cartViewModel : CartViewModel by viewModels()
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -51,7 +54,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainAppTheme {
                 userRepository.loadToken()
-                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel , productViewModel , profileViewModel)
+                StoreUi(singUpViewModel, singInViewModel , mainViewModel , categoryViewModel , productViewModel , profileViewModel , cartViewModel)
             }
         }
     }
@@ -64,7 +67,8 @@ fun StoreUi(
     mainViewModel: MainViewModel,
     categoryViewModel: CategoryViewModel,
     productViewModel: ProductViewModel,
-    profileViewModel : ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    cartViewModel: CartViewModel
 ) {
 
 
@@ -100,7 +104,7 @@ fun StoreUi(
         }
 
         composable(MyScreens.CartScreen.route) {
-            CartScreen()
+            CartScreen(cartViewModel , navController)
         }
 
         composable(MyScreens.SingUpScreen.route) {
@@ -114,15 +118,6 @@ fun StoreUi(
     }
 
 }
-
-
-
-@Composable
-fun CartScreen() {
-
-
-}
-
 
 
 
