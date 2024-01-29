@@ -49,4 +49,7 @@ interface ApiService {
     @GET("getUserCart")
     suspend fun getUserCart() : UserCartInfo
 
+    //--Remove Cart
+    @POST("removeFromCart")
+    suspend fun removeFromCard(@Body jsonObject: JsonObject) : CartResponse
 }

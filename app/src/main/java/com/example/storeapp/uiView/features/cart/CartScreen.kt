@@ -3,6 +3,7 @@ package com.example.storeapp.uiView.features.cart
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,11 +27,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.storeapp.R
 import com.example.storeapp.model.data.Product
 import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.priceBackground
+import com.example.storeapp.util.MyScreens
 import com.example.storeapp.util.stylePrice
 
 @Composable
@@ -51,6 +61,46 @@ fun CartScreen(
     navController: NavHostController
 ) {
 
+    val context = LocalContext.current
+    val getDataDialogState = remember { mutableStateOf(false) }
+    viewModel.loadCardData()
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = 74.dp)) {
+
+            CartToolbar(
+                onBackCLicked = { navController.popBackStack() } ,
+                onProfileClicked = { navController.navigate(MyScreens.ProfileScreen.route) }
+            )
+
+            if (viewModel.productLit.value.isNotEmpty()){
+
+                CartList(
+                    data = viewModel.productLit.value,
+                    isChangingNumber = viewModel.isChangingNumber.value,
+                    onAddItemClicked = { viewModel.addItem(it) },
+                    onRemovedItemClicked = { viewModel.removeItem(it) },
+                    onItemClicked = { navController.navigate(MyScreens.ProductScreen.route + "/" +  it) }
+                )
+
+            }else{
+
+                NoDataAnimation()
+
+            }
+
+
+        }
+
+    }
+    
 
 }
 
@@ -141,41 +191,41 @@ fun CartItem(
                     .height(200.dp)
             )
 
+            Column(modifier = Modifier.padding(10.dp)) {
+
+                Text(
+                    text = data.name,
+                    style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                )
+
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = "From " + data.category + " Group",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+
+                Text(
+                    modifier = Modifier.padding(top = 18.dp),
+                    text = "Product authenticity guarantee",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = "Available in stock ship",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                Column(modifier = Modifier.padding(10.dp)) {
-
-                    Text(
-                        text = data.name,
-                        style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                    )
-
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = "From " + data.category + " Group",
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-
-                    Text(
-                        modifier = Modifier.padding(top = 18.dp),
-                        text = "Product authenticity guarantee",
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = "Available in stock ship",
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-
-                }
-
                 Surface(
                     modifier = Modifier
-                        .padding(bottom = 6.dp, top = 18.dp)
+                        .padding(start = 8.dp, bottom = 6.dp, top = 18.dp)
                         .clip(RoundedCornerShape(10.dp)),
                     color = priceBackground
 
@@ -203,7 +253,8 @@ fun CartItem(
                 ) {
 
                     Card(
-                        border = BorderStroke(2.dp, Blue)
+                        border = BorderStroke(2.dp, Blue),
+                        colors = CardDefaults.cardColors(Color.White)
                     ) {
 
                         Row(
@@ -270,6 +321,20 @@ fun CartItem(
         }
 
     }
+
+}
+
+@Composable
+fun NoDataAnimation (){
+
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(R.raw.no_data)
+    )
+
+    LottieAnimation(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
 
 }
 
