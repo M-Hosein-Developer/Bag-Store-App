@@ -1,5 +1,9 @@
 package com.example.storeapp.uiView.features.cart
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,10 +11,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +24,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -50,9 +58,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.storeapp.R
 import com.example.storeapp.model.data.Product
+import com.example.storeapp.uiView.features.profile.AddUserLocationDataDialog
 import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.priceBackground
 import com.example.storeapp.util.MyScreens
+import com.example.storeapp.util.NetworkChecker
+import com.example.storeapp.util.PAYMENT_PENDING
 import com.example.storeapp.util.stylePrice
 
 @Composable
@@ -80,23 +91,95 @@ fun CartScreen(
                 onProfileClicked = { navController.navigate(MyScreens.ProfileScreen.route) }
             )
 
-            if (viewModel.productLit.value.isNotEmpty()){
+            if (viewModel.productLit.value.isNotEmpty()) {
 
                 CartList(
                     data = viewModel.productLit.value,
                     isChangingNumber = viewModel.isChangingNumber.value,
                     onAddItemClicked = { viewModel.addItem(it) },
                     onRemovedItemClicked = { viewModel.removeItem(it) },
-                    onItemClicked = { navController.navigate(MyScreens.ProductScreen.route + "/" +  it) }
+                    onItemClicked = { navController.navigate(MyScreens.ProductScreen.route + "/" + it) }
                 )
 
-            }else{
+            } else {
 
                 NoDataAnimation()
 
             }
 
+        }
 
+        PurchaseAll(totalPrice = viewModel.totalPrice.value.toString()) {
+
+            if (viewModel.productLit.value.isNotEmpty()){
+
+                val locationData = viewModel.getUserLocation()
+
+                if (locationData.first == "click to add" || locationData.second == "click to add"){
+                    getDataDialogState.value = true
+                }else{
+
+                    viewModel.purchaseAll(locationData.first , locationData.second){succes , lik ->
+
+                        if (succes){
+
+                            Toast.makeText(context, "Pay using zarinpal...", Toast.LENGTH_SHORT).show()
+
+                            viewModel.setPaymentStatus(PAYMENT_PENDING)
+
+                            val intent = Intent(Intent.ACTION_VIEW , Uri.parse(lik))
+                            context.startActivity(intent)
+
+                        }else{
+                            Toast.makeText(context, "problem in payment", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+
+                }
+
+            }else{
+                Toast.makeText(context, "please add some product first...", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
+        if (getDataDialogState.value){
+            AddUserLocationDataDialog(
+                showSaveLocation = true,
+                onDismiss = { getDataDialogState.value = false },
+                onSubmitClicked = {address , postalCode , isChecked ->
+
+                    if (NetworkChecker(context).internetConnection){
+
+                        if (isChecked){
+                            viewModel.setUserLocation(address , postalCode)
+                        }
+
+                        viewModel.purchaseAll(address , postalCode){success , lik ->
+
+                            if (success){
+
+                                Toast.makeText(context, "Pay using zarinpal...", Toast.LENGTH_SHORT).show()
+
+                                viewModel.setPaymentStatus(PAYMENT_PENDING)
+
+                                val intent = Intent(Intent.ACTION_VIEW , Uri.parse(lik))
+                                context.startActivity(intent)
+
+                            }else{
+                                Toast.makeText(context, "problem in payment", Toast.LENGTH_SHORT).show()
+                            }
+
+                        }
+
+
+                    }else{
+                        Toast.makeText(context, "please connect to internet...", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            )
         }
 
     }
@@ -335,6 +418,73 @@ fun NoDataAnimation (){
         composition = composition,
         iterations = LottieConstants.IterateForever
     )
+
+}
+
+@Composable
+fun PurchaseAll(totalPrice: String, onPurchaseClicked: () -> Unit) {
+
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val fraction = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.15f
+    else 0.07f
+
+    Surface(
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(fraction)
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Button(
+                onClick = {
+
+                    if (NetworkChecker(context).internetConnection)
+                        onPurchaseClicked.invoke()
+                    else
+                        Toast.makeText(context, "please connect to internet...", Toast.LENGTH_SHORT)
+                            .show()
+
+                },
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .size(170.dp, 40.dp)
+            ) {
+                Text(
+                    text = "Let's Purchase !",
+                    modifier = Modifier.padding(2.dp),
+                    color = Color.White,
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                )
+            }
+
+            Surface(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .clip(RoundedCornerShape(10.dp)),
+                color = priceBackground
+            ) {
+                Text(
+                    text = "total : " + stylePrice(totalPrice),
+                    modifier = Modifier.padding(
+                        top = 6.dp,
+                        bottom = 6.dp,
+                        start = 8.dp,
+                        end = 8.dp
+                    ),
+                    style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                )
+            }
+
+        }
+
+    }
 
 }
 

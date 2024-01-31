@@ -4,8 +4,12 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +33,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -41,17 +46,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.storeapp.R
 import com.example.storeapp.model.data.Ads
+import com.example.storeapp.model.data.CheckOut
 import com.example.storeapp.model.data.Product
 import com.example.storeapp.uiView.theme.Blue
 import com.example.storeapp.uiView.theme.CardViewBackground
 import com.example.storeapp.util.CATEGORY
 import com.example.storeapp.util.MyScreens
+import com.example.storeapp.util.NO_PAYMENT
 import com.example.storeapp.util.NetworkChecker
+import com.example.storeapp.util.PAYMENT_PENDING
+import com.example.storeapp.util.PAYMENT_SUCCESS
 import com.example.storeapp.util.TAGS
 import com.example.storeapp.util.stylePrice
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -73,27 +85,50 @@ fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
         viewModel.loadBadgeNumber()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp)
-    ) {
+    if (viewModel.getPaymentStatus() == PAYMENT_PENDING){
 
-        if (viewModel.showProgressBar.value)
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = Blue)
-
-        TopToolbar(
-            badgeNumber = viewModel.badgeNumber.value,
-            onCartClicked = { if (NetworkChecker(context).internetConnection) navController.navigate(MyScreens.CartScreen.route) else
-                Toast.makeText(context, "please connect to Internet", Toast.LENGTH_SHORT).show()} ,
-            onProfileClicked = {navController.navigate(MyScreens.ProfileScreen.route)}
-        )
-        CategoryBar(CATEGORY){
-            navController.navigate(MyScreens.CategoryScreen.route + "/" + it)
+        if (NetworkChecker(context).internetConnection){
+            viewModel.getCheckOutData()
         }
-        ProductSubjectList(TAGS, productDataState.value, adsDataState.value){
-            navController.navigate(MyScreens.ProductScreen.route + "/" + it)
+
+    }
+
+    Box {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 16.dp)
+        ) {
+
+            if (viewModel.showProgressBar.value)
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = Blue)
+
+            TopToolbar(
+                badgeNumber = viewModel.badgeNumber.value,
+                onCartClicked = { if (NetworkChecker(context).internetConnection) navController.navigate(MyScreens.CartScreen.route) else
+                    Toast.makeText(context, "please connect to Internet", Toast.LENGTH_SHORT).show()} ,
+                onProfileClicked = {navController.navigate(MyScreens.ProfileScreen.route)}
+            )
+            CategoryBar(CATEGORY){
+                navController.navigate(MyScreens.CategoryScreen.route + "/" + it)
+            }
+            ProductSubjectList(TAGS, productDataState.value, adsDataState.value){
+                navController.navigate(MyScreens.ProductScreen.route + "/" + it)
+            }
+
+        }
+
+
+        if (viewModel.showPaymentResultDialog.value){
+            PaymentResultDialog(
+                checkoutResult = viewModel.checkOutData.value,
+                onDismiss = {
+                    viewModel.showPaymentResultDialog.value
+                    viewModel.setPaymentStatus(NO_PAYMENT)
+                }
+            )
         }
 
     }
@@ -204,6 +239,7 @@ fun ProductSubjectList(tags: List<String>, product: List<Product>, ads: List<Ads
     }
 }
 
+
 @Composable
 fun ProductSubject(subject: String, data: List<Product> , onProductClicked : (String) -> Unit) {
 
@@ -305,6 +341,98 @@ fun BigPictureAds(ads: Ads , onProductClicked : (String) -> Unit) {
         model = ads.imageURL
     )
 
+}
+
+@Composable
+private fun PaymentResultDialog(checkoutResult: CheckOut, onDismiss: () -> Unit) {
+
+    Dialog(onDismissRequest = onDismiss) {
+
+        Card(
+            elevation = CardDefaults.cardElevation(8.dp),
+            shape = CardDefaults.shape
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "Payment Result",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Main Data
+                if (checkoutResult.order?.status?.toInt() == PAYMENT_SUCCESS) {
+
+                    AsyncImage(
+                        model = R.drawable.success_anim,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(110.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(text = "Payment was successful!", style = TextStyle(fontSize = 16.sp))
+                    Text(
+                        text = "Purchase Amount: " + stylePrice(
+                            (checkoutResult.order!!.amount).substring(
+                                0,
+                                (checkoutResult.order!!.amount).length - 1
+                            )
+                        )
+                    )
+
+                } else {
+
+                    AsyncImage(
+                        model = R.drawable.fail_anim,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(110.dp)
+                            .padding(top = 6.dp, bottom = 6.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(text = "Payment was not successful!", style = TextStyle(fontSize = 16.sp))
+                    Text(
+                        text = "Purchase Amount: " + stylePrice(
+                            (checkoutResult.order!!.amount).substring(
+                                0,
+                                (checkoutResult.order.amount).length - 1
+                            )
+                        )
+                    )
+
+                }
+
+                // Ok Button
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    TextButton(onClick = onDismiss) {
+                        Text(text = "ok")
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                }
+            }
+        }
+    }
 }
 
 

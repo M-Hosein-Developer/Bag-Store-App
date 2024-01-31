@@ -3,9 +3,11 @@ package com.example.storeapp.model.apiService
 import com.example.storeapp.model.data.AddNewCommentResponse
 import com.example.storeapp.model.data.AdsResponse
 import com.example.storeapp.model.data.CartResponse
+import com.example.storeapp.model.data.CheckOut
 import com.example.storeapp.model.data.CommentResponse
 import com.example.storeapp.model.data.LoginResponse
 import com.example.storeapp.model.data.ProductResponse
+import com.example.storeapp.model.data.SubmitOrder
 import com.example.storeapp.model.data.UserCartInfo
 import com.google.gson.JsonObject
 import retrofit2.Call
@@ -49,7 +51,16 @@ interface ApiService {
     @GET("getUserCart")
     suspend fun getUserCart() : UserCartInfo
 
-    //--Remove Cart
+    //--Remove Cart---------------------------------------------------------------------------------
     @POST("removeFromCart")
     suspend fun removeFromCard(@Body jsonObject: JsonObject) : CartResponse
+
+    //--Payment-------------------------------------------------------------------------------------
+    @POST("submitOrder")
+    suspend fun submitOrder(@Body jsonObject: JsonObject) : SubmitOrder
+
+    @POST("checkout")
+    suspend fun checkout(@Body jsonObject: JsonObject) : CheckOut
+
+
 }
